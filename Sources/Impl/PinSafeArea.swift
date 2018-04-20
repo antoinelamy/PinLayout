@@ -101,9 +101,11 @@ internal class PinSafeArea {
 }
 
 extension UIViewController {
-    @objc fileprivate func pinlayout_swizzled_viewWillLayoutSubviews() {
+    @objc dynamic fileprivate func pinlayout_swizzled_viewWillLayoutSubviews() {
         if #available(iOS 11.0, tvOS 11.0, *) { assertionFailure() }
 
+        // WARNING: If you have an Exception on this line and you are using "New Relic" agent, please see the following
+        //          issue https://github.com/mirego/PinLayout/issues/130 and the way to resolve it. Sorry for that.
         self.pinlayout_swizzled_viewWillLayoutSubviews()
         let safeAreaInsets = UIEdgeInsets(top: topLayoutGuide.length, left: 0, bottom: bottomLayoutGuide.length, right: 0)
 

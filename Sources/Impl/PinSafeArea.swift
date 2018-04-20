@@ -33,15 +33,8 @@ internal class PinSafeArea {
         if #available(iOS 11.0, tvOS 11.0, *) {
             // Do nothing, let the iOS 11+ safeAreaInsets mecanism do his thing
         } else if !isEnabledCompatibilitySafeAreaInsets {
-            swizzleMethod(UIViewController.self, #selector(UIViewController.viewWillLayoutSubviews), #selector(UIViewController.pinlayout_swizzled_viewWillLayoutSubviews))
+            PinLayoutSwizzling.swizzleViewWillLayoutSubviews()
             isEnabledCompatibilitySafeAreaInsets = true
-        }
-    }
-
-    fileprivate static let swizzleMethod: (AnyClass, Selector, Selector) -> () = { forClass, originalSelector, swizzledSelector in
-        if let originalMethod = class_getInstanceMethod(forClass, originalSelector),
-            let swizzledMethod = class_getInstanceMethod(forClass, swizzledSelector) {
-            method_exchangeImplementations(originalMethod, swizzledMethod)
         }
     }
 
@@ -100,18 +93,66 @@ internal class PinSafeArea {
     }
 }
 
-extension UIViewController {
-    @objc dynamic fileprivate func pinlayout_swizzled_viewWillLayoutSubviews() {
+struct PinLayoutSwizzling {
+    typealias ViewWillLayoutSubviewsFunction = @convention(c) (UIViewController, Selector) -> Void
+    typealias ViewWillLayoutSubviewsBlock = @convention(block) (UIViewController, Selector) -> Void
+
+    static fileprivate func swizzleViewWillLayoutSubviews() {
+        var implementation: IMP?
+        let swizzledBlock: ViewWillLayoutSubviewsBlock = { calledViewController, selector in
+            if let implementation = implementation {
+                let viewWillLayoutSubviews: ViewWillLayoutSubviewsFunction = unsafeBitCast(implementation, to: ViewWillLayoutSubviewsFunction.self)
+                viewWillLayoutSubviews(calledViewController, selector)
+            }
+            PinLayoutSwizzling.pinlayoutViewWillLayoutSubviews(viewController: calledViewController)
+        }
+        implementation = swizzleViewWillLayoutSubviews(UIViewController.self, to: swizzledBlock)
+    }
+
+    static fileprivate func pinlayoutViewWillLayoutSubviews(viewController: UIViewController) {
         if #available(iOS 11.0, tvOS 11.0, *) { assertionFailure() }
 
-        // WARNING: If you have an Exception on this line and you are using "New Relic" agent, please see the following
-        //          issue https://github.com/mirego/PinLayout/issues/130 and the way to resolve it. Sorry for that.
-        self.pinlayout_swizzled_viewWillLayoutSubviews()
-        let safeAreaInsets = UIEdgeInsets(top: topLayoutGuide.length, left: 0, bottom: bottomLayoutGuide.length, right: 0)
+        // WARNING: If you have an Exception on this line and you are using "New Relic" agent, you have two choices:
+        //    1. Disable New Relic Swift instrumentation:
+        //          NewRelic.disableFeatures(NRMAFeatureFlags.NRFeatureFlag_SwiftInteractionTracing)
+        //    2. Disable PinLayout 'UIView.pin.safeArea' feature by adding this line at the begginging of
+        //       your AppDelegate.didFinishLaunchingWithOptions(...) method:
+        //          Pin.enableSafeArea = false
+        //       Note that this will disable the usage of UIView.pin.safeArea on iOS < 11.0.
+        //
+        //   New Relic is quite intrusive on this one!
+        //   See here for more information regarding this issue https://github.com/mirego/PinLayout/issues/130.
+        //        self.pinlayout_swizzled_viewWillLayoutSubviews()
+        if let view = viewController.view {
+            let safeAreaInsets = UIEdgeInsets(top: viewController.topLayoutGuide.length, left: 0,
+                                              bottom: viewController.bottomLayoutGuide.length, right: 0)
 
-        // Set children safeArea up to 3 level, to limit the performance issue of computing this compatibilitySafeAreaInsets
-        PinSafeArea.setViewSafeAreaInsets(view: view, insets: safeAreaInsets, recursiveLevel: 3)
+            // Set children safeArea up to 3 level, to limit the performance issue of computing this compatibilitySafeAreaInsets
+            PinSafeArea.setViewSafeAreaInsets(view: view, insets: safeAreaInsets, recursiveLevel: 3)
+        }
     }
+
+    static fileprivate func swizzleViewWillLayoutSubviews(_ class_: AnyClass, to block: @escaping ViewWillLayoutSubviewsBlock) -> IMP? {
+        let selector = #selector(UIViewController.viewWillLayoutSubviews)
+        let method = class_getInstanceMethod(class_, selector)
+        let newImplementation = imp_implementationWithBlock(unsafeBitCast(block, to: AnyObject.self))
+
+        if let method = method {
+            let oldImplementation = method_getImplementation(method)
+            method_setImplementation(method, newImplementation)
+            return oldImplementation
+        } else {
+            class_addMethod(class_, selector, newImplementation, "")
+            return nil
+        }
+    }
+
+//    static fileprivate func removeViewWillLayoutSubviewsSwizzle(_ class_: AnyClass, originalImplementation: IMP?) {
+//        let selector = #selector(UIViewController.viewWillLayoutSubviews)
+//        guard let originalImplementation = originalImplementation else { return }
+//        guard let method = class_getInstanceMethod(class_, selector) else { return }
+//        method_setImplementation(method, originalImplementation)
+//    }
 }
 
 extension UIView {

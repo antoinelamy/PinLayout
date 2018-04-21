@@ -55,6 +55,14 @@ public enum PinSafeAreaInsetsDidChangeMode {
     public static func layoutDirection(_ direction: LayoutDirection) {
         self.layoutDirection = direction
     }
+
+    public static func initFramework() {
+        enableSafeArea(true)
+    }
+
+    public static func enableSafeArea(_ enable: Bool) {
+        PinSafeArea.enableCompatibilitySafeArea(enable)
+    }
     
     // Contains PinLayout last warning's text. Used by PinLayout's Unit Tests.
     @objc public static var lastWarningText: String?

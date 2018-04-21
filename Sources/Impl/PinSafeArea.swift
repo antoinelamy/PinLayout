@@ -29,12 +29,18 @@ public protocol PinSafeAreaInsetsUpdate {
 internal class PinSafeArea {
     fileprivate static var isEnabledCompatibilitySafeAreaInsets = false
 
-    internal static func enableCompatibilitySafeArea() {
+    internal static func enableCompatibilitySafeArea(_ enable: Bool) {
         if #available(iOS 11.0, tvOS 11.0, *) {
             // Do nothing, let the iOS 11+ safeAreaInsets mecanism do his thing
-        } else if !isEnabledCompatibilitySafeAreaInsets {
-            PinLayoutSwizzling.swizzleViewWillLayoutSubviews()
-            isEnabledCompatibilitySafeAreaInsets = true
+        } else if enable {
+            if !isEnabledCompatibilitySafeAreaInsets {
+                PinLayoutSwizzling.swizzleViewWillLayoutSubviews()
+                isEnabledCompatibilitySafeAreaInsets = true
+            }
+        } else {
+            if isEnabledCompatibilitySafeAreaInsets {
+                PinLayoutSwizzling.removeViewWillLayoutSubviewsSwizzle()
+            }
         }
     }
 
@@ -96,33 +102,42 @@ internal class PinSafeArea {
 struct PinLayoutSwizzling {
     typealias ViewWillLayoutSubviewsFunction = @convention(c) (UIViewController, Selector) -> Void
     typealias ViewWillLayoutSubviewsBlock = @convention(block) (UIViewController, Selector) -> Void
+    static var originalImplementation: IMP?
 
     static fileprivate func swizzleViewWillLayoutSubviews() {
-        var implementation: IMP?
         let swizzledBlock: ViewWillLayoutSubviewsBlock = { calledViewController, selector in
-            if let implementation = implementation {
-                let viewWillLayoutSubviews: ViewWillLayoutSubviewsFunction = unsafeBitCast(implementation, to: ViewWillLayoutSubviewsFunction.self)
+            if let originalImplementation = originalImplementation {
+                let viewWillLayoutSubviews: ViewWillLayoutSubviewsFunction = unsafeBitCast(originalImplementation, to: ViewWillLayoutSubviewsFunction.self)
+
+                // WARNING: If you have an Exception on this line and you are using "New Relic" agent, you have two choices:
+                //    1. Disable New Relic Swift instrumentation:
+                //          NewRelic.disableFeatures(NRMAFeatureFlags.NRFeatureFlag_SwiftInteractionTracing)
+                //    2. Disable PinLayout 'UIView.pin.safeArea' feature by adding this line at the begginging of
+                //       your AppDelegate.didFinishLaunchingWithOptions(...) method:
+                //          Pin.enableSafeArea = false
+                //       Note that this will disable the usage of UIView.pin.safeArea on iOS < 11.0.
+                //
+                //   New Relic is quite intrusive on this one!
+                //   See here for more information regarding this issue https://github.com/mirego/PinLayout/issues/130.
+                //        self.pinlayout_swizzled_viewWillLayoutSubviews()
                 viewWillLayoutSubviews(calledViewController, selector)
             }
             PinLayoutSwizzling.pinlayoutViewWillLayoutSubviews(viewController: calledViewController)
         }
-        implementation = swizzleViewWillLayoutSubviews(UIViewController.self, to: swizzledBlock)
+        originalImplementation = swizzleViewWillLayoutSubviews(UIViewController.self, to: swizzledBlock)
+    }
+
+    static fileprivate func removeViewWillLayoutSubviewsSwizzle() {
+        let selector = #selector(UIViewController.viewWillLayoutSubviews)
+        guard let originalImplementation = originalImplementation else { return }
+        guard let method = class_getInstanceMethod(UIViewController.self, selector) else { return }
+
+        method_setImplementation(method, originalImplementation)
     }
 
     static fileprivate func pinlayoutViewWillLayoutSubviews(viewController: UIViewController) {
         if #available(iOS 11.0, tvOS 11.0, *) { assertionFailure() }
 
-        // WARNING: If you have an Exception on this line and you are using "New Relic" agent, you have two choices:
-        //    1. Disable New Relic Swift instrumentation:
-        //          NewRelic.disableFeatures(NRMAFeatureFlags.NRFeatureFlag_SwiftInteractionTracing)
-        //    2. Disable PinLayout 'UIView.pin.safeArea' feature by adding this line at the begginging of
-        //       your AppDelegate.didFinishLaunchingWithOptions(...) method:
-        //          Pin.enableSafeArea = false
-        //       Note that this will disable the usage of UIView.pin.safeArea on iOS < 11.0.
-        //
-        //   New Relic is quite intrusive on this one!
-        //   See here for more information regarding this issue https://github.com/mirego/PinLayout/issues/130.
-        //        self.pinlayout_swizzled_viewWillLayoutSubviews()
         if let view = viewController.view {
             let safeAreaInsets = UIEdgeInsets(top: viewController.topLayoutGuide.length, left: 0,
                                               bottom: viewController.bottomLayoutGuide.length, right: 0)
@@ -146,13 +161,6 @@ struct PinLayoutSwizzling {
             return nil
         }
     }
-
-//    static fileprivate func removeViewWillLayoutSubviewsSwizzle(_ class_: AnyClass, originalImplementation: IMP?) {
-//        let selector = #selector(UIViewController.viewWillLayoutSubviews)
-//        guard let originalImplementation = originalImplementation else { return }
-//        guard let method = class_getInstanceMethod(class_, selector) else { return }
-//        method_setImplementation(method, originalImplementation)
-//    }
 }
 
 extension UIView {

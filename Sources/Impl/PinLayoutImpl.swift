@@ -21,14 +21,11 @@ import Foundation
 
 #if os(iOS) || os(tvOS)
     import UIKit
-    public typealias PView = UIView
     public typealias PEdgeInsets = UIEdgeInsets
 #else
     import AppKit
-    public typealias PView = NSView
     public typealias PEdgeInsets = NSEdgeInsets
 #endif
-
 
 public class PinLayout<TLayoutable: Layoutable> {
     public let view: TLayoutable
@@ -96,9 +93,11 @@ public class PinLayout<TLayoutable: Layoutable> {
                 return .zero
             }
         } else {
-            assert(false)
-            return .zero
-//            return view.pinlayoutComputeSafeAreaInsets()
+            if let uiview = view as? UIView {
+                return uiview.pinlayoutComputeSafeAreaInsets()
+            } else {
+                return .zero
+            }
         }
     }
     #endif

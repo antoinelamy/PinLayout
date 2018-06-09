@@ -373,7 +373,7 @@ extension PinLayout {
         //       Currently we only support 1 and 2 levels.
         } else {
 //            return referenceSuperview.convert(point, to: layoutSuperview)
-            return referenceSuperview.convert(point, to: layoutSuperview as! TLayoutable.View)
+            return referenceSuperview.convert(point, to: layoutSuperview as? TLayoutable.View)
         }
     }
     

@@ -17,39 +17,18 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
 
-import Foundation
-
 #if os(macOS)
-import AppKit
-//
-//public protocol Layoutable: AnyObject, Equatable {
-//    associatedtype View
-//
-//    var superview: View? { get }
-//    var subviews: [View] { get }
-//
-//    var anchor: AnchorList { get }
-//    var edge: EdgeList { get }
-//
-//    func getRect(keepTransform: Bool) -> CGRect
-//    func setRect(_ rect: CGRect, keepTransform: Bool)
-//
-//    func sizeThatFits(_ size: CGSize) -> CGSize
-//    func convert(_ point: CGPoint, to view: View?) -> CGPoint
-//
-//    func isLTR() -> Bool
-//}
 
 import AppKit
 
 extension NSView: Layoutable {
-//    var superview: NSView? {
-//        return nil
-//    }
-//
-//    var subviews: [NSView] {
-//        return []
-//    }
+    public var pin: PinLayout<NSView> {
+        return PinLayout(view: self, keepTransform: true)
+    }
+
+    public var pinFrame: PinLayout<NSView> {
+        return PinLayout(view: self, keepTransform: false)
+    }
 
     public var anchor: AnchorList {
         return AnchorListImpl(view: self)
@@ -59,31 +38,9 @@ extension NSView: Layoutable {
         return EdgeListImpl(view: self)
     }
 
-    public var pin: PinLayout<NSView> {
-        return PinLayout(view: self, keepTransform: true)
-    }
-
-    public var pinFrame: PinLayout<NSView> {
-        return PinLayout(view: self, keepTransform: false)
-    }
-
-    public static func == (lhs: NSView, rhs: NSView) -> Bool {
-        return lhs == rhs
-    }
-
-// Expose PinLayout's objective-c interface.
-//    @objc public var pinObjc: PinLayoutObjC {
-//        return PinLayoutObjCImpl(view: self, keepTransform: true)
-//    }
-
     public func sizeThatFits(_ size: CGSize) -> CGSize {
         return .zero
     }
-
-//    func convert(_ point: CGPoint, to view: View?) -> CGPoint
-//    func convert(_ point: CGPoint, to view: NSView?) -> CGPoint {
-//        return .zero
-//    }
 
     public func getRect(keepTransform: Bool) -> CGRect {
         if let superview = superview, !superview.isFlipped {

@@ -22,7 +22,7 @@ import Foundation
 #if os(iOS) || os(tvOS)
 import UIKit
 
-public extension UIView: Layoutable {
+extension UIView: Layoutable {
     public var pin: PinLayout<UIView> {
         return PinLayout(view: self, keepTransform: true)
     }
@@ -93,11 +93,6 @@ public extension UIView: Layoutable {
             frame = adjustedRect
         }
     }
-
-    // Expose PinLayout's objective-c interface.
-//    @objc public var pinObjc: PinLayoutObjC {
-//        return PinLayoutObjCImpl(view: self, keepTransform: true)
-//    }
 }
 
 #endif

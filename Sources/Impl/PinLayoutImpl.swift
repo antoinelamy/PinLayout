@@ -29,26 +29,6 @@ import Foundation
     public typealias PEdgeInsets = NSEdgeInsets
 #endif
 
-public protocol Layoutable: AnyObject, Equatable {
-    associatedtype View
-
-    var superview: View? { get }
-    var subviews: [View] { get }
-
-    var anchor: AnchorList { get }
-    var edge: EdgeList { get }
-
-    func getRect(keepTransform: Bool) -> CGRect
-    func setRect(_ rect: CGRect, keepTransform: Bool)
-
-    func sizeThatFits(_ size: CGSize) -> CGSize
-    func convert(_ point: CGPoint, to view: View) -> CGPoint
-    
-    func isLTR() -> Bool
-
-
-}
-
 
 public class PinLayout<TLayoutable: Layoutable> {
     public let view: TLayoutable

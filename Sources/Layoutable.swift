@@ -12,7 +12,7 @@ import UIKit
 import AppKit
 #endif
 
-public protocol Layoutable: class, Equatable {
+public protocol Layoutable: AnyObject, Equatable {
     associatedtype View
 
     var superview: View? { get }

@@ -23,12 +23,12 @@ import Foundation
 import UIKit
 
 public extension UIView {
-    public var pin: PinLayout {
-        return PinLayoutImpl(view: self, keepTransform: true)
+    public var pin: PinLayout<UIView> {
+        return PinLayout(view: self, keepTransform: true)
     }
 
-    public var pinFrame: PinLayout {
-        return PinLayoutImpl(view: self, keepTransform: false)
+    public var pinFrame: PinLayout<UIView> {
+        return PinLayout(view: self, keepTransform: false)
     }
 
     @objc public var anchor: AnchorList {
@@ -40,9 +40,9 @@ public extension UIView {
     }
 
     // Expose PinLayout's objective-c interface.
-    @objc public var pinObjc: PinLayoutObjC {
-        return PinLayoutObjCImpl(view: self, keepTransform: true)
-    }
+//    @objc public var pinObjc: PinLayoutObjC {
+//        return PinLayoutObjCImpl(view: self, keepTransform: true)
+//    }
 }
 
 #endif

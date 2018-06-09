@@ -23,7 +23,7 @@ import Foundation
 import UIKit
     
 extension UIView {
-    func isLTR() -> Bool {
+    public func isLTR() -> Bool {
         switch Pin.layoutDirection {
         case .auto:
             if #available(iOS 9.0, *) {

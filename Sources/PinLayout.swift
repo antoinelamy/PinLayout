@@ -22,7 +22,7 @@ import UIKit
 #else
 import AppKit
 #endif
-
+/*
 /// PinLayout interface
 public protocol PinLayout {
 
@@ -589,3 +589,4 @@ public protocol PinLayout {
      */
     func layout()
 }
+*/

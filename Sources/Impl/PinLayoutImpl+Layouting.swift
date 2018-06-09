@@ -24,7 +24,7 @@
 #endif
 
 // MARK: UIView's frame computation methods
-extension PinLayoutImpl {
+extension PinLayout {
     public func layout() {
         apply()
     }
@@ -35,7 +35,7 @@ extension PinLayoutImpl {
         isLayouted = true
     }
     
-    private func apply(onView view: PView) {
+    private func apply(onView view: TLayoutable) {
         displayLayoutWarnings()
         
         var newRect = view.getRect(keepTransform: keepTransform)

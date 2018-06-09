@@ -11,8 +11,18 @@ import Foundation
 #if os(iOS) || os(tvOS)
 import UIKit
 
-extension UIView {
-    func getRect(keepTransform: Bool) -> CGRect {
+extension UIView: Layoutable {
+//    var superview: View? { get }
+//    var subviews: [View] { get }
+//
+//    func getRect(keepTransform: Bool) -> CGRect
+//    func setRect(_ rect: CGRect, keepTransform: Bool)
+//
+    public func convert(_ point: CGPoint, to view: UIView) -> CGPoint {
+        return .zero
+    }
+
+    public func getRect(keepTransform: Bool) -> CGRect {
         if keepTransform {
             /*
              To adjust the view's position and size, we don't set the UIView's frame directly, because we want to keep the
@@ -30,9 +40,8 @@ extension UIView {
             return frame
         }
     }
-
-    func setRect(_ rect: CGRect, keepTransform: Bool) {
-        let adjustedRect = Coordinates.adjustRectToDisplayScale(rect)
+    public func setRect(_ rect: CGRect, keepTransform: Bool) {
+        let adjustedRect = DisplayScale.adjustRectToDisplayScale(rect)
 
         if keepTransform {
             /*

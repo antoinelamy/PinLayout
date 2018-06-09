@@ -23,33 +23,33 @@ import UIKit
 import AppKit
 #endif
 
-extension PinLayoutImpl {
-    func wrapContent() -> PinLayout {
+extension PinLayout {
+    public func wrapContent() -> PinLayout {
         return wrapContent(.all, padding: PEdgeInsets(top: 0, left: 0, bottom: 0, right: 0), { return "wrapContent()" })
     }
 
-    func wrapContent(padding: CGFloat) -> PinLayout {
+    public func wrapContent(padding: CGFloat) -> PinLayout {
         return wrapContent(.all, padding: PEdgeInsets(top: padding, left: padding, bottom: padding, right: padding), { return "wrapContent(padding: \(padding)" })
     }
     
-    func wrapContent(padding: PEdgeInsets) -> PinLayout {
+    public func wrapContent(padding: PEdgeInsets) -> PinLayout {
         return wrapContent(.all, padding: padding, { return "wrapContent(padding: \(insetsDescription(padding))" })
     }
 
-    func wrapContent(_ type: WrapType) -> PinLayout {
+    public func wrapContent(_ type: WrapType) -> PinLayout {
         return wrapContent(type, padding: PEdgeInsets(top: 0, left: 0, bottom: 0, right: 0), { return "wrapContent(\(type.description)" })
     }
 
-    func wrapContent(_ type: WrapType, padding: CGFloat) -> PinLayout {
+    public func wrapContent(_ type: WrapType, padding: CGFloat) -> PinLayout {
         return wrapContent(type, padding: PEdgeInsets(top: padding, left: padding, bottom: padding, right: padding), { return "wrapContent(\(type.description), padding: \(padding)" })
     }
 
-    func wrapContent(_ type: WrapType, padding: PEdgeInsets) -> PinLayout {
+    public func wrapContent(_ type: WrapType, padding: PEdgeInsets) -> PinLayout {
         return wrapContent(type, padding: padding, { return "wrapContent(\(type.description), padding: \(insetsDescription(padding))" })
     }
 
     private func wrapContent(_ type: WrapType, padding: PEdgeInsets, _ context: Context) -> PinLayout {
-        let subviews = view.subviews
+        guard let subviews = view.subviews as? [TLayoutable] else { return self }
         guard !subviews.isEmpty else { return self }
 
         let firstViewRect = subviews[0].getRect(keepTransform: keepTransform)

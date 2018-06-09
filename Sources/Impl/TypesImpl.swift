@@ -25,17 +25,17 @@ import Foundation
     import AppKit
 #endif
 
-typealias Context = () -> String
+public typealias Context = () -> String
 
 struct Size {
     var width: CGFloat?
     var height: CGFloat?
 }
 
-class EdgeListImpl: EdgeList {
-    internal let view: PView
+class EdgeListImpl<TLayoutable: Layoutable>: EdgeList {
+    internal let view: TLayoutable
 
-    init(view: PView) {
+    init(view: TLayoutable) {
         self.view = view
     }
 
@@ -52,14 +52,14 @@ class EdgeListImpl: EdgeList {
     var end: HorizontalEdge { return view.isLTR() ? right : left }
 }
 
-class HorizontalEdgeImpl: HorizontalEdge {
+class HorizontalEdgeImpl<TLayoutable: Layoutable>: HorizontalEdge {
     enum EdgeType: String {
         case left
         case hCenter
         case right
     }
 
-    let view: PView
+    let view: TLayoutable
     let type: EdgeType
 
     func x(keepTransform: Bool) -> CGFloat {
@@ -72,20 +72,20 @@ class HorizontalEdgeImpl: HorizontalEdge {
         }
     }
 
-    internal init(view: PView, type: EdgeType) {
+    internal init(view: TLayoutable, type: EdgeType) {
         self.view = view
         self.type = type
     }
 }
 
-class VerticalEdgeImpl: VerticalEdge {
+class VerticalEdgeImpl<TLayoutable: Layoutable>: VerticalEdge {
     enum EdgeType: String {
         case top
         case vCenter
         case bottom
     }
     
-    internal let view: PView
+    internal let view: TLayoutable
     internal let type: EdgeType
 
     func y(keepTransform: Bool) -> CGFloat {
@@ -99,16 +99,16 @@ class VerticalEdgeImpl: VerticalEdge {
         }
     }
 
-    internal init(view: PView, type: EdgeType) {
+    internal init(view: TLayoutable, type: EdgeType) {
         self.view = view
         self.type = type
     }
 }
 
-class AnchorListImpl: AnchorList {
-    internal let view: PView
+class AnchorListImpl<TLayoutable: Layoutable>: AnchorList {
+    internal let view: TLayoutable
 
-    internal init(view: PView) {
+    internal init(view: TLayoutable) {
         self.view = view
     }
 
@@ -143,8 +143,8 @@ enum AnchorType: String {
     case bottomRight
 }
 
-class AnchorImpl: Anchor {
-    let view: PView
+class AnchorImpl<TLayoutable: Layoutable>: Anchor {
+    let view: TLayoutable
     let type: AnchorType
 
     func point(keepTransform: Bool) -> CGPoint {
@@ -161,7 +161,7 @@ class AnchorImpl: Anchor {
         }
     }
 
-    fileprivate init(view: PView, type: AnchorType) {
+    fileprivate init(view: TLayoutable, type: AnchorType) {
         self.view = view
         self.type = type
     }

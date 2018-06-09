@@ -23,7 +23,7 @@
     import AppKit
 #endif
 
-extension PinLayoutImpl {
+extension PinLayout {
     internal func top(_ context: Context) {
         setTop(0, context)
     }
@@ -114,7 +114,7 @@ extension PinLayoutImpl {
             warnConflict(context, ["Horizontal Center": _hCenter])
         } else if let _right = _right, _right != value {
             if let superview = view.superview {
-                let rect = superview.getRect(keepTransform: keepTransform)
+                let rect = (superview as! TLayoutable).getRect(keepTransform: keepTransform)
                 warnPropertyAlreadySet("right", propertyValue: rect.width - _right, context)
             } else {
                 warnPropertyAlreadySet("right", propertyValue: _right, context)
@@ -157,7 +157,7 @@ extension PinLayoutImpl {
         if let _vCenter = _vCenter {
             warnConflict(context, ["Vertical Center": _vCenter])
         } else if let _bottom = _bottom, _bottom != value {
-            if let superview = view.superview {
+            if let superview = view.superview as? TLayoutable {
                 let rect = superview.getRect(keepTransform: keepTransform)
                 warnPropertyAlreadySet("bottom", propertyValue: rect.height - _bottom, context)
             } else {
@@ -361,10 +361,10 @@ extension PinLayoutImpl {
         }
     }
     
-    fileprivate func computeCoordinates(_ point: CGPoint, _ layoutSuperview: PView, _ referenceSuperview: PView) -> CGPoint {
+    fileprivate func computeCoordinates(_ point: CGPoint, _ layoutSuperview: TLayoutable, _ referenceSuperview: TLayoutable) -> CGPoint {
         if layoutSuperview == referenceSuperview {
             return point   // same superview => no coordinates conversion required.
-        } else if referenceSuperview == layoutSuperview.superview {
+        } else if let layoutSuperviewSuperview = layoutSuperview.superview as? TLayoutable, referenceSuperview == layoutSuperviewSuperview {
             let layoutSuperviewRect = layoutSuperview.getRect(keepTransform: keepTransform)
             return CGPoint(x: point.x - layoutSuperviewRect.origin.x,
                            y: point.y - layoutSuperviewRect.origin.y)
@@ -372,7 +372,7 @@ extension PinLayoutImpl {
         //       coordinates, but UIView.convert(...) below use transformed coordinates!
         //       Currently we only support 1 and 2 levels.
         } else {
-            return referenceSuperview.convert(point, to: layoutSuperview)
+            return referenceSuperview.convert(point, to: layoutSuperview as! TLayoutable.View)
         }
     }
     
@@ -380,7 +380,7 @@ extension PinLayoutImpl {
         guard let layoutSuperview = layoutSuperview(context) else { return nil }
         var results: [CGPoint] = []
         anchors.forEach({ (anchor) in
-            let anchor = anchor as! AnchorImpl
+            let anchor = anchor as! AnchorImpl<TLayoutable>
             if let referenceSuperview = referenceSuperview(anchor.view, context) {
                 results.append(computeCoordinates(anchor.point(keepTransform: keepTransform),
                                                   layoutSuperview, referenceSuperview))
@@ -396,16 +396,16 @@ extension PinLayoutImpl {
     }
     
     internal func computeCoordinate(forEdge edge: HorizontalEdge, _ context: Context) -> CGFloat? {
-        let edge = edge as! HorizontalEdgeImpl
+        let edge = edge as! HorizontalEdgeImpl<TLayoutable>
         guard let layoutSuperview = layoutSuperview(context) else { return nil }
-        guard let referenceSuperview = referenceSuperview(edge.view, context) else { return nil }
+        guard let referenceSuperview = referenceSuperview(edge.view, context) as? TLayoutable else { return nil }
         
         return computeCoordinates(CGPoint(x: edge.x(keepTransform: keepTransform), y: 0),
                                   layoutSuperview, referenceSuperview).x
     }
     
     internal func computeCoordinate(forEdge edge: VerticalEdge, _ context: Context) -> CGFloat? {
-        let edge = edge as! VerticalEdgeImpl
+        let edge = edge as! VerticalEdgeImpl<TLayoutable>
         guard let layoutSuperview = layoutSuperview(context) else { return nil }
         guard let referenceSuperview = referenceSuperview(edge.view, context) else { return nil }
         

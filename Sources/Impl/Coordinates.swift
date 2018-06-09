@@ -23,72 +23,77 @@ import UIKit
 import AppKit
 #endif
 
+
 public func _pinlayoutSetUnitTest(displayScale: CGFloat) {
-    Coordinates.displayScale = displayScale
+    DisplayScale.displayScale = displayScale
 }
 
-final class Coordinates {
-    #if os(iOS) || os(tvOS)
-    internal static var displayScale: CGFloat = UIScreen.main.scale
-    #elseif os(OSX)
-    internal static var displayScale: CGFloat = NSScreen.main?.backingScaleFactor ?? 2.0
-    #endif
-    internal static var onePixelLength: CGFloat = 1 / displayScale
-
-    static func hCenter(_ view: PView, keepTransform: Bool) -> CGFloat {
+final class Coordinates<TLayoutable: Layoutable> {
+    static func hCenter(_ view: TLayoutable, keepTransform: Bool) -> CGFloat {
         let rect = view.getRect(keepTransform: keepTransform)
         return rect.minX + (rect.width / 2)
     }
 
-    static func vCenter(_ view: PView, keepTransform: Bool) -> CGFloat {
+    static func vCenter(_ view: TLayoutable, keepTransform: Bool) -> CGFloat {
         let rect = view.getRect(keepTransform: keepTransform)
         return rect.minY + (rect.height / 2)
     }
 
-    static func topLeft(_ view: PView, keepTransform: Bool) -> CGPoint {
+    static func topLeft(_ view: TLayoutable, keepTransform: Bool) -> CGPoint {
         let rect = view.getRect(keepTransform: keepTransform)
         return CGPoint(x: rect.minX, y: rect.minY)
     }
 
-    static func topCenter(_ view: PView, keepTransform: Bool) -> CGPoint {
+    static func topCenter(_ view: TLayoutable, keepTransform: Bool) -> CGPoint {
         let rect = view.getRect(keepTransform: keepTransform)
         return CGPoint(x: rect.minX + (rect.width / 2), y: rect.minY)
     }
 
-    static func topRight(_ view: PView, keepTransform: Bool) -> CGPoint {
+    static func topRight(_ view: TLayoutable, keepTransform: Bool) -> CGPoint {
         let rect = view.getRect(keepTransform: keepTransform)
         return CGPoint(x: rect.minX + rect.width, y: rect.minY)
     }
 
-    static func centerLeft(_ view: PView, keepTransform: Bool) -> CGPoint {
+    static func centerLeft(_ view: TLayoutable, keepTransform: Bool) -> CGPoint {
         let rect = view.getRect(keepTransform: keepTransform)
         return CGPoint(x: rect.minX, y: rect.minY + (rect.height / 2))
     }
     
-    static func center(_ view: PView, keepTransform: Bool) -> CGPoint {
+    static func center(_ view: TLayoutable, keepTransform: Bool) -> CGPoint {
         let rect = view.getRect(keepTransform: keepTransform)
         return CGPoint(x: rect.minX + (rect.width / 2), y: rect.minY + (rect.height / 2))
     }
 
-    static func centerRight(_ view: PView, keepTransform: Bool) -> CGPoint {
+    static func centerRight(_ view: TLayoutable, keepTransform: Bool) -> CGPoint {
         let rect = view.getRect(keepTransform: keepTransform)
         return CGPoint(x: rect.minX + rect.width, y: rect.minY + (rect.height / 2))
     }
     
-    static func bottomLeft(_ view: PView, keepTransform: Bool) -> CGPoint {
+    static func bottomLeft(_ view: TLayoutable, keepTransform: Bool) -> CGPoint {
         let rect = view.getRect(keepTransform: keepTransform)
         return CGPoint(x: rect.minX, y: rect.minY + rect.height)
     }
 
-    static func bottomCenter(_ view: PView, keepTransform: Bool) -> CGPoint {
+    static func bottomCenter(_ view: TLayoutable, keepTransform: Bool) -> CGPoint {
         let rect = view.getRect(keepTransform: keepTransform)
         return CGPoint(x: rect.minX + (rect.width / 2), y: rect.minY + rect.height)
     }
 
-    static func bottomRight(_ view: PView, keepTransform: Bool) -> CGPoint {
+    static func bottomRight(_ view: TLayoutable, keepTransform: Bool) -> CGPoint {
         let rect = view.getRect(keepTransform: keepTransform)
         return CGPoint(x: rect.minX + rect.width, y: rect.minY + rect.height)
     }
+
+
+}
+
+class DisplayScale {
+    #if os(iOS) || os(tvOS)
+    static internal var displayScale: CGFloat = UIScreen.main.scale
+    #elseif os(OSX)
+    static internal var displayScale: CGFloat = NSScreen.main?.backingScaleFactor ?? 2.0
+    #endif
+    static internal var onePixelLength: CGFloat = 1 / displayScale
 
     static func adjustRectToDisplayScale(_ rect: CGRect) -> CGRect {
         return CGRect(x: roundFloatToDisplayScale(rect.origin.x),

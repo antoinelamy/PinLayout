@@ -30,23 +30,23 @@ fileprivate var numberFormatter: NumberFormatter = {
     return numberFormatter
 }()
 
-extension PinLayoutImpl {
+extension PinLayout {
     internal func pointContext(method: String, point: CGPoint) -> String {
         return "\(method)(to: CGPoint(x: \(point.x), y: \(point.y)))"
     }
     
     internal func relativeEdgeContext(method: String, edge: VerticalEdge) -> String {
-        let edge = edge as! VerticalEdgeImpl
+        let edge = edge as! VerticalEdgeImpl<TLayoutable>
         return "\(method)(to: .\(edge.type.rawValue), of: \(viewDescription(edge.view)))"
     }
     
     internal func relativeEdgeContext(method: String, edge: HorizontalEdge) -> String {
-        let edge = edge as! HorizontalEdgeImpl
+        let edge = edge as! HorizontalEdgeImpl<TLayoutable>
         return "\(method)(to: .\(edge.type.rawValue), of: \(viewDescription(edge.view))"
     }
     
     internal func relativeAnchorContext(method: String, anchor: Anchor) -> String {
-        let anchor = anchor as! AnchorImpl
+        let anchor = anchor as! AnchorImpl<TLayoutable>
         return "\(method)(to: .\(anchor.type.rawValue), of: \(viewDescription(anchor.view)))"
     }
     
@@ -114,12 +114,12 @@ extension PinLayoutImpl {
         }
     }
 
-    internal func viewDescription(_ view: PView) -> String {
+    internal func viewDescription(_ view: TLayoutable) -> String {
         let rect = view.getRect(keepTransform: keepTransform)
         return "(\(viewName(view)), Frame: \(rect))"
     }
     
-    internal func viewName(_ view: PView) -> String {
+    internal func viewName(_ view: TLayoutable) -> String {
         return "\(type(of: view))"
     }
 
@@ -127,7 +127,7 @@ extension PinLayoutImpl {
         return "UIEdgeInsets(top: \(insets.top), left: \(insets.left), bottom: \(insets.bottom), right: \(insets.right))"
     }
 
-    internal func pinLayoutDisplayConsoleWarning(_ text: String, _ view: PView) {
+    internal func pinLayoutDisplayConsoleWarning(_ text: String, _ view: TLayoutable) {
         var displayText = "\n👉 \(text)"
 
         let rect = view.getRect(keepTransform: keepTransform)
@@ -142,7 +142,7 @@ extension PinLayoutImpl {
         var hierarchy: [String] = []
         while let parent = currentView.superview {
             hierarchy.insert("\(type(of: parent))", at: 0)
-            currentView = parent
+            currentView = parent as! TLayoutable
         }
         if hierarchy.count > 0 {
             #if swift(>=4.1)
@@ -152,7 +152,7 @@ extension PinLayoutImpl {
             #endif
         }
 
-        displayText += ", Tag: \(view.tag))\n"
+//        displayText += ", Tag: \(view.tag))\n"
 
         print(displayText)
         Pin.lastWarningText = text

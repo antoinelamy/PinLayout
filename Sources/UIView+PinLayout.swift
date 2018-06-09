@@ -31,7 +31,7 @@ public extension UIView {
         return PinLayout(view: self, keepTransform: false)
     }
 
-    @objc public var anchor: AnchorList {
+    public var anchor: AnchorList {
         return AnchorListImpl(view: self)
     }
 

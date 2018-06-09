@@ -195,88 +195,88 @@ extension PinLayout {
     fileprivate func above(relativeViews: [TLayoutable], aligned: HorizontalAlign?, context: Context) -> PinLayout {
         guard let relativeViews = validateRelativeViews(relativeViews, context: context) else { return self }
         
-//        let anchors: [Anchor]
-//        if let aligned = aligned {
-//            switch aligned {
-//            case .left:   anchors = relativeViews.map({ $0.anchor.topLeft })
-//            case .center: anchors = relativeViews.map({ $0.anchor.topCenter })
-//            case .right:  anchors = relativeViews.map({ $0.anchor.topRight })
-//            case .start:  anchors = isLTR() ? relativeViews.map({ $0.anchor.topLeft }) : relativeViews.map({ $0.anchor.topRight })
-//            case .end:    anchors = isLTR() ? relativeViews.map({ $0.anchor.topRight }) : relativeViews.map({ $0.anchor.topLeft })
-//            }
-//        } else {
-//            anchors = relativeViews.map({ $0.anchor.topLeft })
-//        }
-//
-//        if let coordinatesList = computeCoordinates(forAnchors: anchors, context) {
-//            setBottom(getTopMostCoordinate(list: coordinatesList), context)
-//            applyHorizontalAlignment(aligned, coordinatesList: coordinatesList, context: context)
-//        }
+        let anchors: [Anchor]
+        if let aligned = aligned {
+            switch aligned {
+            case .left:   anchors = relativeViews.map({ $0.anchor.topLeft })
+            case .center: anchors = relativeViews.map({ $0.anchor.topCenter })
+            case .right:  anchors = relativeViews.map({ $0.anchor.topRight })
+            case .start:  anchors = isLTR() ? relativeViews.map({ $0.anchor.topLeft }) : relativeViews.map({ $0.anchor.topRight })
+            case .end:    anchors = isLTR() ? relativeViews.map({ $0.anchor.topRight }) : relativeViews.map({ $0.anchor.topLeft })
+            }
+        } else {
+            anchors = relativeViews.map({ $0.anchor.topLeft })
+        }
+
+        if let coordinatesList = computeCoordinates(forAnchors: anchors, context) {
+            setBottom(getTopMostCoordinate(list: coordinatesList), context)
+            applyHorizontalAlignment(aligned, coordinatesList: coordinatesList, context: context)
+        }
         return self
     }
 
     fileprivate func below(relativeViews: [TLayoutable], aligned: HorizontalAlign?, context: Context) -> PinLayout {
         guard let relativeViews = validateRelativeViews(relativeViews, context: context) else { return self }
         
-//        let anchors: [Anchor]
-//        if let aligned = aligned {
-//            switch aligned {
-//            case .left:   anchors = relativeViews.map({ $0.anchor.bottomLeft })
-//            case .center: anchors = relativeViews.map({ $0.anchor.bottomCenter })
-//            case .right:  anchors = relativeViews.map({ $0.anchor.bottomRight })
-//            case .start:  anchors = isLTR() ? relativeViews.map({ $0.anchor.bottomLeft }) : relativeViews.map({ $0.anchor.bottomRight })
-//            case .end:    anchors = isLTR() ? relativeViews.map({ $0.anchor.bottomRight }) : relativeViews.map({ $0.anchor.bottomLeft })
-//            }
-//        } else {
-//            anchors = relativeViews.map({ $0.anchor.bottomLeft })
-//        }
-//
-//        if let coordinatesList = computeCoordinates(forAnchors: anchors, context) {
-//            setTop(getBottomMostCoordinate(list: coordinatesList), context)
-//            applyHorizontalAlignment(aligned, coordinatesList: coordinatesList, context: context)
-//        }
+        let anchors: [Anchor]
+        if let aligned = aligned {
+            switch aligned {
+            case .left:   anchors = relativeViews.map({ $0.anchor.bottomLeft })
+            case .center: anchors = relativeViews.map({ $0.anchor.bottomCenter })
+            case .right:  anchors = relativeViews.map({ $0.anchor.bottomRight })
+            case .start:  anchors = isLTR() ? relativeViews.map({ $0.anchor.bottomLeft }) : relativeViews.map({ $0.anchor.bottomRight })
+            case .end:    anchors = isLTR() ? relativeViews.map({ $0.anchor.bottomRight }) : relativeViews.map({ $0.anchor.bottomLeft })
+            }
+        } else {
+            anchors = relativeViews.map({ $0.anchor.bottomLeft })
+        }
+
+        if let coordinatesList = computeCoordinates(forAnchors: anchors, context) {
+            setTop(getBottomMostCoordinate(list: coordinatesList), context)
+            applyHorizontalAlignment(aligned, coordinatesList: coordinatesList, context: context)
+        }
         return self
     }
     
     fileprivate func left(relativeViews: [TLayoutable], aligned: VerticalAlign?, context: Context) -> PinLayout {
         guard let relativeViews = validateRelativeViews(relativeViews, context: context) else { return self }
         
-//        let anchors: [Anchor]
-//        if let aligned = aligned {
-//            switch aligned {
-//            case .top:    anchors = relativeViews.map({ $0.anchor.topLeft })
-//            case .center: anchors = relativeViews.map({ $0.anchor.centerLeft })
-//            case .bottom: anchors = relativeViews.map({ $0.anchor.bottomLeft })
-//            }
-//        } else {
-//            anchors = relativeViews.map({ $0.anchor.topLeft })
-//        }
-//
-//        if let coordinatesList = computeCoordinates(forAnchors: anchors, context) {
-//            setRight(getLeftMostCoordinate(list: coordinatesList), context)
-//            applyVerticalAlignment(aligned, coordinatesList: coordinatesList, context: context)
-//        }
+        let anchors: [Anchor]
+        if let aligned = aligned {
+            switch aligned {
+            case .top:    anchors = relativeViews.map({ $0.anchor.topLeft })
+            case .center: anchors = relativeViews.map({ $0.anchor.centerLeft })
+            case .bottom: anchors = relativeViews.map({ $0.anchor.bottomLeft })
+            }
+        } else {
+            anchors = relativeViews.map({ $0.anchor.topLeft })
+        }
+
+        if let coordinatesList = computeCoordinates(forAnchors: anchors, context) {
+            setRight(getLeftMostCoordinate(list: coordinatesList), context)
+            applyVerticalAlignment(aligned, coordinatesList: coordinatesList, context: context)
+        }
         return self
     }
     
     fileprivate func right(relativeViews: [TLayoutable], aligned: VerticalAlign?, context: Context) -> PinLayout {
         guard let relativeViews = validateRelativeViews(relativeViews, context: context) else { return self }
         
-//        let anchors: [Anchor]
-//        if let aligned = aligned {
-//            switch aligned {
-//            case .top:    anchors = relativeViews.map({ $0.anchor.topRight })
-//            case .center: anchors = relativeViews.map({ $0.anchor.centerRight })
-//            case .bottom: anchors = relativeViews.map({ $0.anchor.bottomRight })
-//            }
-//        } else {
-//            anchors = relativeViews.map({ $0.anchor.topRight })
-//        }
-//        
-//        if let coordinatesList = computeCoordinates(forAnchors: anchors, context) {
-//            setLeft(getRightMostCoordinate(list: coordinatesList), context)
-//            applyVerticalAlignment(aligned, coordinatesList: coordinatesList, context: context)
-//        }
+        let anchors: [Anchor]
+        if let aligned = aligned {
+            switch aligned {
+            case .top:    anchors = relativeViews.map({ $0.anchor.topRight })
+            case .center: anchors = relativeViews.map({ $0.anchor.centerRight })
+            case .bottom: anchors = relativeViews.map({ $0.anchor.bottomRight })
+            }
+        } else {
+            anchors = relativeViews.map({ $0.anchor.topRight })
+        }
+        
+        if let coordinatesList = computeCoordinates(forAnchors: anchors, context) {
+            setLeft(getRightMostCoordinate(list: coordinatesList), context)
+            applyVerticalAlignment(aligned, coordinatesList: coordinatesList, context: context)
+        }
         return self
     }
     

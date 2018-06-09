@@ -49,7 +49,8 @@ import Foundation
 }
 
 /// UIViews's list of anchors.
-@objc public protocol AnchorList {
+public protocol AnchorList {
+//    associatedtype View
     var topLeft: Anchor { get }
     var topCenter: Anchor { get }
     var topRight: Anchor { get }

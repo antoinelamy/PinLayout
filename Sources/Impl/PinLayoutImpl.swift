@@ -35,6 +35,9 @@ public protocol Layoutable: AnyObject, Equatable {
     var superview: View? { get }
     var subviews: [View] { get }
 
+    var anchor: AnchorList { get }
+    var edge: EdgeList { get }
+
     func getRect(keepTransform: Bool) -> CGRect
     func setRect(_ rect: CGRect, keepTransform: Bool)
 
@@ -42,6 +45,8 @@ public protocol Layoutable: AnyObject, Equatable {
     func convert(_ point: CGPoint, to view: View) -> CGPoint
     
     func isLTR() -> Bool
+
+
 }
 
 

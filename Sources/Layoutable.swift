@@ -6,9 +6,13 @@
 //  Copyright © 2018 mcswiftlayyout.mirego.com. All rights reserved.
 //
 
-import Foundation
+#if os(iOS) || os(tvOS)
+import UIKit
+#else
+import AppKit
+#endif
 
-public protocol Layoutable: AnyObject, Equatable {
+public protocol Layoutable: class, Equatable {
     associatedtype View
 
     var superview: View? { get }

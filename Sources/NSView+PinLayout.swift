@@ -21,15 +21,35 @@ import Foundation
 
 #if os(macOS)
 import AppKit
+//
+//public protocol Layoutable: AnyObject, Equatable {
+//    associatedtype View
+//
+//    var superview: View? { get }
+//    var subviews: [View] { get }
+//
+//    var anchor: AnchorList { get }
+//    var edge: EdgeList { get }
+//
+//    func getRect(keepTransform: Bool) -> CGRect
+//    func setRect(_ rect: CGRect, keepTransform: Bool)
+//
+//    func sizeThatFits(_ size: CGSize) -> CGSize
+//    func convert(_ point: CGPoint, to view: View?) -> CGPoint
+//
+//    func isLTR() -> Bool
+//}
 
-public extension NSView {
-    public var pin: PinLayout {
-        return PinLayoutImpl(view: self, keepTransform: true)
-    }
+import AppKit
 
-    public var pinFrame: PinLayout {
-        return PinLayoutImpl(view: self, keepTransform: false)
-    }
+extension NSView: Layoutable {
+//    var superview: NSView? {
+//        return nil
+//    }
+//
+//    var subviews: [NSView] {
+//        return []
+//    }
 
     public var anchor: AnchorList {
         return AnchorListImpl(view: self)
@@ -39,9 +59,60 @@ public extension NSView {
         return EdgeListImpl(view: self)
     }
 
-    // Expose PinLayout's objective-c interface.
-    @objc public var pinObjc: PinLayoutObjC {
-        return PinLayoutObjCImpl(view: self, keepTransform: true)
+    public var pin: PinLayout<NSView> {
+        return PinLayout(view: self, keepTransform: true)
+    }
+
+    public var pinFrame: PinLayout<NSView> {
+        return PinLayout(view: self, keepTransform: false)
+    }
+
+    public static func == (lhs: NSView, rhs: NSView) -> Bool {
+        return lhs == rhs
+    }
+
+// Expose PinLayout's objective-c interface.
+//    @objc public var pinObjc: PinLayoutObjC {
+//        return PinLayoutObjCImpl(view: self, keepTransform: true)
+//    }
+
+    public func sizeThatFits(_ size: CGSize) -> CGSize {
+        return .zero
+    }
+
+//    func convert(_ point: CGPoint, to view: View?) -> CGPoint
+//    func convert(_ point: CGPoint, to view: NSView?) -> CGPoint {
+//        return .zero
+//    }
+
+    public func getRect(keepTransform: Bool) -> CGRect {
+        if let superview = superview, !superview.isFlipped {
+            var flippedRect = frame
+            flippedRect.origin.y = superview.frame.height - flippedRect.height - flippedRect.origin.y
+            return flippedRect
+        } else {
+            return frame
+        }
+    }
+
+    public func setRect(_ rect: CGRect, keepTransform: Bool) {
+        let adjustedRect = DisplayScale.adjustRectToDisplayScale(rect)
+
+        if let superview = superview, !superview.isFlipped {
+            var flippedRect = adjustedRect
+            flippedRect.origin.y = superview.frame.height - flippedRect.height - flippedRect.origin.y
+            frame = flippedRect
+        } else {
+            frame = adjustedRect
+        }
+    }
+
+    public func isLTR() -> Bool {
+        switch Pin.layoutDirection {
+        case .auto: return self.userInterfaceLayoutDirection == .leftToRight
+        case .ltr:  return true
+        case .rtl:  return false
+        }
     }
 }
 

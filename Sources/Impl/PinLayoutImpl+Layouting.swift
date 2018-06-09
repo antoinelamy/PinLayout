@@ -227,6 +227,7 @@ extension PinLayout {
     }
 
     private func computeLegacyFitSize(size: Size) -> Size {
+        #if os(iOS) || os(tvOS)
         guard size.width != nil || size.height != nil else {
             warn("fitSize() won't be applied, neither the width nor the height can be determined.")
             return size
@@ -243,11 +244,7 @@ extension PinLayout {
             fitHeight = height
         }
 
-        #if os(iOS) || os(tvOS)
         let sizeThatFits = view.sizeThatFits(CGSize(width: fitWidth, height: fitHeight))
-        #else
-        let sizeThatFits = view.intrinsicContentSize
-        #endif
 
         if fitWidth != .greatestFiniteMagnitude && (sizeThatFits.width > fitWidth) {
             size.width = fitWidth
@@ -262,9 +259,13 @@ extension PinLayout {
         }
 
         return size
+        #else
+        return size
+        #endif
     }
 
     private func computeSizeToFit(adjustSizeType: AdjustSizeType, size: Size) -> Size {
+        #if os(iOS) || os(tvOS)
         var fitWidth = CGFloat.greatestFiniteMagnitude
         var fitHeight = CGFloat.greatestFiniteMagnitude
         var size = size
@@ -287,20 +288,7 @@ extension PinLayout {
             assertionFailure("Should not occured")
         }
 
-        #if os(iOS) || os(tvOS)
         let sizeThatFits = view.sizeThatFits(CGSize(width: fitWidth, height: fitHeight))
-        #else
-        let sizeThatFits: CGSize
-        if #available(OSX 10.10, *) {
-            if let control = view as? NSControl {
-                sizeThatFits = control.sizeThatFits(CGSize(width: fitWidth, height: fitHeight))
-            } else {
-                sizeThatFits = view.intrinsicContentSize
-            }
-        } else {
-            sizeThatFits = view.intrinsicContentSize
-        }
-        #endif
 
         if fitWidth != .greatestFiniteMagnitude {
             size.width = adjustSizeType.isFlexible ? sizeThatFits.width : fitWidth
@@ -315,6 +303,19 @@ extension PinLayout {
         }
 
         return size
+        #else
+//        let sizeThatFits: CGSize
+//        if #available(OSX 10.10, *) {
+//            if let control = view as? NSControl {
+//                sizeThatFits = control.sizeThatFits(CGSize(width: fitWidth, height: fitHeight))
+//            } else {
+//                sizeThatFits = view.intrinsicContentSize
+//            }
+//        } else {
+//            sizeThatFits = view.intrinsicContentSize
+//        }
+        return size
+        #endif
     }
 
     private func computeAspectRatio(_ aspectRatio: CGFloat, size: Size) -> Size {
